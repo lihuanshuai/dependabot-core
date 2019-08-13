@@ -1487,9 +1487,43 @@ RSpec.describe Dependabot::NpmAndYarn::FileUpdater do
       end
     end
 
-    context "when 'latest' is specified" do
+    context "when 'latest' is specified in npm" do
       let(:manifest_fixture_name) { "latest_package_requirement.json" }
       let(:npm_lock_fixture_name) { "latest_package_requirement.json" }
+
+      let(:version) { "3.0.2" }
+      let(:dependency_name) { "extend" }
+      let(:previous_version) { "2.0.1" }
+      let(:requirements) do
+        [{
+          file: "package.json",
+          requirement: "^3.0.2",
+          groups: ["dependencies"],
+          source: nil
+        }]
+      end
+      let(:previous_requirements) do
+        [{
+          file: "package.json",
+          requirement: "^2.0.1",
+          groups: ["dependencies"],
+          source: nil
+        }]
+      end
+
+      it "only updates the extend package in lockfile" do
+        expect(updated_files.map(&:name)).
+          to match_array(%w(package.json package-lock.json))
+
+        expect(updated_npm_lock.content).
+          to include("extend/-/extend-3.0.2.tgz")
+        expect(updated_npm_lock.content).
+          to include("etag/-/etag-1.7.0.tgz")
+      end
+    end
+
+    context "when 'latest' is specified in yarn" do
+      let(:manifest_fixture_name) { "latest_package_requirement.json" }
       let(:yarn_lock_fixture_name) { "latest_package_requirement.lock" }
 
       let(:version) { "3.0.2" }
@@ -1512,18 +1546,14 @@ RSpec.describe Dependabot::NpmAndYarn::FileUpdater do
         }]
       end
 
-      it "only updates the extend in lockfile" do
+      it "only updates the extend package in lockfile" do
         expect(updated_files.map(&:name)).
-          to match_array(%w(package.json yarn.lock package-lock.json))
+          to match_array(%w(yarn.lock package-lock.json))
 
         expect(updated_yarn_lock.content).
           to include("extend@^3.0.2:\n  version \"3.0.2\"")
-        expect(updated_npm_lock.content).
-          to include("extend/-/extend-3.0.2.tgz")
         expect(updated_yarn_lock.content).
           to include("etag@latest:\n  version \"1.7.0\"")
-        expect(updated_npm_lock.content).
-          to include("etag/-/etag-1.7.0.tgz")
       end
     end
 

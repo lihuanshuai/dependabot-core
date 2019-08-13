@@ -326,6 +326,17 @@ module Dependabot
           end
         end
 
+        def lock_deps_with_latest_reqs(content)
+          package_files.each do |file|
+            NpmAndYarn::FileParser::DEPENDENCY_TYPES.each do |t|
+              JSON.parse(file.content).fetch(t, {}).each do |nm, requirement|
+                next unless requirement == "latest"
+                file.content[t][requirement] = "*"
+              end
+            end
+          end
+        end
+
         def replace_ssh_sources(content)
           updated_content = content
 
