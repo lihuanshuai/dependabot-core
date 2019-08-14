@@ -327,11 +327,14 @@ module Dependabot
         end
 
         def lock_deps_with_latest_reqs(content)
-          package_files.each do |file|
+          package_files.each do
+            json = JSON.parse(content)
+
             NpmAndYarn::FileParser::DEPENDENCY_TYPES.each do |t|
-              JSON.parse(file.content).fetch(t, {}).each do |nm, requirement|
+              json.fetch(t, {}).each do |requirement|
                 next unless requirement == "latest"
-                file.content[t][requirement] = "*"
+
+                json[t][requirement] = "*"
               end
             end
           end
