@@ -1488,7 +1488,6 @@ RSpec.describe Dependabot::NpmAndYarn::FileUpdater do
     end
 
     context "when 'latest' is specified as version requirement" do
-      #let(:files) { [package_json, package_lock] }
       let(:manifest_fixture_name) { "latest_package_requirement.json" }
       let(:npm_lock_fixture_name) { "latest_package_requirement.json" }
       let(:yarn_lock_fixture_name) { "latest_package_requirement.lock" }
